@@ -32,39 +32,39 @@ name: 'Build and Deploy to Cloud Run'
 on:
   push:
     branches:
-      - '"vlrpusher"'
+      - "master"
 
 env:
-  PROJECT_ID: 'trim-keep-440008-a8' # TODO: update to your Google Cloud project ID
-  REGION: 'us-central1' # TODO: update to your region
-  SERVICE_NAME: 'rotter' 
+  PROJECT_ID: trim-keep-440008-a8 # TODO: update to your Google Cloud project ID
+  REGION: us-central1 # TODO: update to your region
+  SERVICE_NAME: rotter 
   ACTION_GCP_CREDENTIALS: ${{ secrets.ACTION_GCP_CREDENTIALS }} # TODO: update to your service name
   
 jobs:
   deploy:
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
 
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: read
+      id-token: write
 
     steps:
-      - name: 'Checkout'
-        uses: 'actions/checkout@v2'
+      - name: Checkout
+        uses: actions/checkout@v2
 
       # Configure Workload Identity Federation and generate an access token.
       #
       # See https://github.com/google-github-actions/auth for more options,
       # including authenticating via a JSON credentials file.
-      - name: 'Set up Google Cloud SDK'
-        uses: 'google-github-actions/auth@v2'
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/auth@v2
         with:
-          credentials_json: '${{ env.ACTION_GCP_CREDENTIALS }}'
+          credentials_json: ${{ env.ACTION_GCP_CREDENTIALS }}
           
       - name: Configure Docker authentication
         run: gcloud auth configure-docker
 
-      - name: 'Build and Push Container'
+      - name: Build and Push Container
         run: |
           IMAGE=gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:$GITHUB_SHA
           docker build --tag $IMAGE \
@@ -73,7 +73,7 @@ jobs:
           docker push $IMAGE
 
           
-      - name: 'Deploy to Cloud Run'
+      - name: Deploy to Cloud Run
         run: |
           gcloud run deploy rotter \
             --image gcr.io/${{ env.ACTION_GCP_CREDENTIALS }}/${{ env.SERVICE_NAME}}:$GITHUB_SHA \
