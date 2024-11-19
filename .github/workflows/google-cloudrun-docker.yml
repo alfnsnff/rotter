@@ -78,6 +78,6 @@ jobs:
           gcloud run deploy rotter \
             --image gcr.io/${{ env.ACTION_GCP_CREDENTIALS }}/${{ env.SERVICE_NAME}}:$GITHUB_SHA \
             --allow-unauthenticated \
-            --region us-central1 \
+            --region ${{ env.REGION }} \
             --allow-unauthenticated
       
