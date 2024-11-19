@@ -27,18 +27,6 @@ import {
 import maps from "@/data/maps";
 import { createClient } from '@/utils/supabase/client';
 
-const agentLinupss = {
-  map: "ascent",
-  items: [
-    { id: 1, imgUrl: "/img/1.jpg", title: "Judul Lineups", side: "Attacking" },
-    { id: 2, imgUrl: "/img/1.jpg", title: "Judul Lineups", side: "Attacking" },
-    { id: 3, imgUrl: "/img/1.jpg", title: "Judul Lineups", side: "Attacking" },
-    { id: 4, imgUrl: "/img/1.jpg", title: "Judul Lineups", side: "Attacking" },
-    { id: 5, imgUrl: "/img/1.jpg", title: "Judul Lineups", side: "Attacking" },
-    { id: 6, imgUrl: "/img/1.jpg", title: "Judul Lineups", side: "Attacking" },
-  ],
-};
-
 export default function AgentLineup({
   params: paramsPromise,
 }: {
@@ -49,7 +37,7 @@ export default function AgentLineup({
   const [lineups, setLineups] = useState<any[]>([]);
   const searchParams = useSearchParams();
   const agent = searchParams.get("agent") || "sova";
-  const currentMap = searchParams.get("map") || "Ascent";
+  const currentMap = searchParams.get("map") || "All";
 
   const fetchLineups = async () => {
     try {
@@ -94,14 +82,23 @@ export default function AgentLineup({
         <aside className="flex-[1] border-r pr-4">
           <nav>
             <ul className="space-y-2">
+              <Link
+                href={`/lineups/${params.agent}/?agent=${agent}&map=${'All'}`}
+                className={`block font-semibold rounded-md p-2 transition-colors ${currentMap === 'All'
+                  ? "bg-primary text-secondary"
+                  : "hover:bg-muted"
+                  }`}
+              >
+                <h3>All</h3>
+              </Link>
               {maps.map((map) => (
                 <Link
                   key={map.id}
                   href={`/lineups/${params.agent}/?agent=${agent}&map=${map.name}`}
                   className={`block font-semibold rounded-md p-2 transition-colors ${currentMap === map.name
                     ? "bg-primary text-secondary"
-                    : ""
-                    } hover:bg-muted`}
+                    : "hover:bg-muted"
+                    }`}
                 >
                   <h3>{map.name}</h3>
                 </Link>

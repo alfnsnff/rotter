@@ -223,7 +223,7 @@ const PushLineup = () => {
                                         selectedRole === "attacker"
                                             ? "bg-primary text-primary-foreground"
                                             : "bg-muted text-muted-foreground"
-                                    } hover:bg-primary/90`}
+                                    } hover:bg-primary/90 hover:text-primary-foreground`}
                                 >
                                     Attacker
                                 </Button>
@@ -234,7 +234,7 @@ const PushLineup = () => {
                                         selectedRole === "defender"
                                             ? "bg-primary text-primary-foreground"
                                             : "bg-muted text-muted-foreground"
-                                    } hover:bg-primary/90`}
+                                    } hover:bg-primary/90 hover:text-primary-foreground`}
                                 >
                                     Defender
                                 </Button>
