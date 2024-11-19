@@ -33,7 +33,7 @@ export const signUpAction = async (formData: FormData) => {
   } else {
     return encodedRedirect(
       "success",
-      "/sign-up",
+      "/sign-ip",
       "Thanks for signing up! Please check your email for a verification link.",
     );
   }
@@ -53,7 +53,7 @@ export const signInAction = async (formData: FormData) => {
     return encodedRedirect("error", "/sign-in", error.message);
   }
 
-  return redirect("/protected");
+  return redirect("/");
 };
 
 export const forgotPasswordAction = async (formData: FormData) => {
