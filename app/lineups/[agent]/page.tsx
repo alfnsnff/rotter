@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +24,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import maps from "@/data/maps";
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from "@/utils/supabase/client";
+import { ClipLoader } from "react-spinners";
 
 export default function AgentLineup({
   params: paramsPromise,
@@ -35,31 +35,48 @@ export default function AgentLineup({
   const params = React.use(paramsPromise);
   const supabase = createClient();
   const [lineups, setLineups] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true); // Loading state
   const searchParams = useSearchParams();
-  const agent = searchParams.get("agent") || "sova";
-  const currentMap = searchParams.get("map") || "All";
+  const agent = searchParams.get("agent") || "";
+  const [currentMap, setCurrentMap] = useState("All"); // Track selected map
 
-  const fetchLineups = async () => {
+  const fetchLineups = async (mapFilter: string) => {
     try {
-      const { data: lineups, error } = await supabase.from('lineups').select();
+      setLoading(true);
+      const query = supabase.from("lineups").select().eq("agent", params.agent);
+
+      if (mapFilter !== "All") {
+        query.eq("map", mapFilter); // Apply map filter if not "All"
+      }
+
+      const { data: lineups, error } = await query;
 
       if (error) {
-        console.error('Error fetching lineups:', error.message);
+        console.error("Error fetching lineups:", error.message);
         return;
       }
       setLineups(lineups);
-      console.log('Fetched lineups:', lineups);
     } catch (err) {
-      console.error('Unexpected error:', err);
+      console.error("Unexpected error:", err);
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
   useEffect(() => {
-    fetchLineups();
-  }, []);
+    fetchLineups(currentMap); // Fetch lineups based on the selected map
+  }, [currentMap]);
+
+  if (loading) {
+    return (
+      <main className="w-full h-svh flex justify-center items-center">
+        <ClipLoader color="#3498db" loading={loading} size={50} />
+      </main>
+    );
+  }
 
   return (
-    <main className="w-full h-svh mx-auto px-4 py-8">
+    <main className="w-full mx-auto sm:min-w-0 min-w-72 py-8">
       {/* Breadcrumb Navigation */}
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
@@ -70,93 +87,109 @@ export default function AgentLineup({
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href={`/lineups/${params.agent}`} className="font-semibold">
+            <BreadcrumbLink
+              href={`/lineups/${params.agent}`}
+              className="font-semibold"
+            >
               {params.agent}
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="flex gap-4">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar */}
-        <aside className="flex-[1] border-r pr-4">
+        <aside className="lg:flex-[1] lg:pr-4">
           <nav>
             <ul className="space-y-2">
-              <Link
-                href={`/lineups/${params.agent}/?agent=${agent}&map=${'All'}`}
-                className={`block font-semibold rounded-md p-2 transition-colors ${currentMap === 'All'
+              <li
+                className={`block font-semibold rounded-md p-2 transition-colors cursor-pointer ${currentMap === "All"
                   ? "bg-primary text-secondary"
                   : "hover:bg-muted"
                   }`}
+                onClick={() => setCurrentMap("All")}
               >
                 <h3>All</h3>
-              </Link>
+              </li>
               {maps.map((map) => (
-                <Link
+                <li
                   key={map.id}
-                  href={`/lineups/${params.agent}/?agent=${agent}&map=${map.name}`}
-                  className={`block font-semibold rounded-md p-2 transition-colors ${currentMap === map.name
+                  className={`block font-semibold rounded-md p-2 transition-colors cursor-pointer ${currentMap === map.name
                     ? "bg-primary text-secondary"
                     : "hover:bg-muted"
                     }`}
+                  onClick={() => setCurrentMap(map.name)}
                 >
                   <h3>{map.name}</h3>
-                </Link>
+                </li>
               ))}
             </ul>
           </nav>
         </aside>
 
         {/* Main content */}
-        <section className="flex-[3]">
-          <h1 className="text-3xl font-bold mb-6">{params.agent} Lineups</h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {lineups.map((lineup) => (
-              <Dialog key={lineup.id}>
-                <DialogTrigger>
-                  <div className="space-y-2">
-                    <img
-                      src={lineup.image_urls?.[0] || "/fallback-image.jpg"}
-                      className="h-40 w-72 rounded-sm object-cover"
-                      alt={lineup.title || "No title"}
-                    />
-                    <div className="flex flex-col justify-between items-start">
-                      <h1>{lineup.title || "Unknown Title"}</h1>
-                      <p className="text-sm text-blue-300">{lineup.sides || "N/A"}</p>
+        <section className="lg:flex-[3]">
+          <h1 className="text-2xl lg:text-3xl font-bold mb-6">
+            {params.agent} Lineups
+          </h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {lineups.length > 0 ? (
+              lineups.map((lineup) => (
+                <Dialog key={lineup.id}>
+                  <DialogTrigger>
+                    <div className="space-y-2">
+                      <img
+                        src={lineup.image_urls?.[0] || "/fallback-image.jpg"}
+                        className="h-40 w-full sm:w-72 rounded-sm object-cover"
+                        alt={lineup.title || "No title"}
+                      />
+                      <div className="flex flex-col justify-between items-start">
+                        <h1>{lineup.title || "Unknown Title"}</h1>
+                        <p className="text-sm text-blue-300">
+                          {lineup.sides || "N/A"}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </DialogTrigger>
-                <DialogContent className="w-full max-w-5xl h-auto p-8 bg-white dark:bg-gray-800 overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>Lineup Details</DialogTitle>
-                    <DialogDescription>
-                      Explore the detailed lineup for this map and agent.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <Carousel className="mx-12">
-                    <CarouselContent>
-                      {lineup.image_urls?.map((image: string, index: number) => (
-                        <CarouselItem key={index}>
-                          <div className="flex justify-center">
-                            <img
-                              src={image}
-                              alt={`Lineup ${index + 1}`}
-                              className="w-full max-w-[720px] h-[480px] rounded-xl object-cover"
-                            />
-                          </div>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <CarouselPrevious />
-                    <CarouselNext />
-                  </Carousel>
-                </DialogContent>
-              </Dialog>
-            ))}
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Lineup Details</DialogTitle>
+                      <DialogDescription>
+                        Explore the detailed lineup for this map and agent.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Carousel className="mx-4 sm:mx-12">
+                      <CarouselContent>
+                        {lineup.image_urls?.map((image: string, index: number) => (
+                          <CarouselItem key={index}>
+                            <div className="flex justify-center">
+                              <img
+                                src={image}
+                                alt={`Lineup ${index + 1}`}
+                                className="rounded-md"
+                              />
+                            </div>
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <CarouselPrevious />
+                      <CarouselNext />
+                    </Carousel>
+                  </DialogContent>
+                </Dialog>
+              ))
+            ) : (
+              <div
+                className="h-40 w-full sm:w-72"
+              >
+                <p className="text-gray-500">
+                  No lineups found for this agent and map.
+                </p>
+              </div>
+            )}
           </div>
         </section>
       </div>
     </main>
-
   );
 }

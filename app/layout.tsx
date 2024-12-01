@@ -55,21 +55,21 @@ export default function RootLayout({
                         {/* Push Dropdown */}
                         <NavigationMenuItem>
                           <NavigationMenuTrigger>Push</NavigationMenuTrigger>
-                          <NavigationMenuContent className="flex gap-2 md:flex-row p-4 bg-card text-card-foreground rounded-lg shadow-lg md:space-y-0 min-w-[600px]">
+                          <NavigationMenuContent className="flex min-w-[300px] flex-col gap-2 p-4 bg-card text-card-foreground rounded-lg shadow-lg space-y-2 sm:flex-row sm:min-w-[600px] sm:space-y-0">
                             {/* Left Column */}
-                            <Card className="px-4 py-2 md:w-1/3 bg-muted border-0">
+                            <Card className="px-4 py-2 w-full sm:w-1/3 bg-muted border-0">
                               <h3 className="text-lg font-semibold text-foreground">Setup</h3>
                               <p className="text-sm font-normal text-muted-foreground">
                                 Learn about the Push setup and configuration options available for seamless integration.
                               </p>
                             </Card>
                             {/* Right Column */}
-                            <Card className="flex flex-col gap-2 md:w-2/3 border-0">
+                            <Card className="flex flex-col gap-2 w-full sm:w-2/3 border-0">
                               <Link href="/push/lineup" legacyBehavior passHref>
                                 <NavigationMenuLink className="px-4 py-2 hover:bg-muted rounded-md">
                                   <h3 className="text-lg font-semibold text-foreground">Lineup</h3>
                                   <p className="text-sm font-normal text-muted-foreground">
-                                    Learn about the Push setup and configuration options available for seamless integration.
+                                    Explore lineups for the best setups and strategies.
                                   </p>
                                 </NavigationMenuLink>
                               </Link>
@@ -77,7 +77,7 @@ export default function RootLayout({
                                 <NavigationMenuLink className="px-4 py-2 hover:bg-muted rounded-md">
                                   <h3 className="text-lg font-semibold text-foreground">Setup</h3>
                                   <p className="text-sm font-normal text-muted-foreground">
-                                    Learn about the Push setup and configuration options available for seamless integration.
+                                    Understand the configuration options in detail.
                                   </p>
                                 </NavigationMenuLink>
                               </Link>
@@ -86,14 +86,19 @@ export default function RootLayout({
                         </NavigationMenuItem>
                       </NavigationMenuList>
                     </NavigationMenu>
+
                   </div>
                   <div className="flex items-center space-x-2">
                     {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
-                    <ThemeSwitcher />
+                    {/* Hide ThemeSwitcher on mobile */}
+                    <div className="hidden md:block">
+                      <ThemeSwitcher />
+                    </div>
                   </div>
+
                 </div>
               </nav>
-              <div className="flex flex-col gap-20 p-5">
+              <div className="flex flex-col item-center gap-20">
                 {children}
               </div>
 

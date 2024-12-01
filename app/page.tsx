@@ -11,7 +11,7 @@ export default async function Index() {
           {agents.map((agent) => (
             <div
               key={agent.name}
-              className="relative w-40  h-60 bg-[radial-gradient(circle,_rgba(var(--card),0.8),_rgba(var(--card),0.8))] border border-gray-300 shadow-lg transition duration-200 overflow-hidden group hover:border-blue-500"
+              className="relative w-48 h-72 sm:w-40 sm:h-60 bg-[radial-gradient(circle,_rgba(var(--card),0.8),_rgba(var(--card),0.8))] border border-gray-300 shadow-lg transition duration-200 overflow-hidden group hover:border-blue-500"
             >
               <Link href={`/lineups/${agent.name}`}>
                 <img
@@ -30,3 +30,4 @@ export default async function Index() {
     </div>
   );
 }
+
